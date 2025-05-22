@@ -8,8 +8,19 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
+// CORS configuration
+const corsOptions = {
+  origin: [
+    "http://localhost:5173", // Vite dev server
+    "https://*.netlify.app", // All Netlify preview deployments
+    "https://bank-account-resolver.netlify.app", // Your production Netlify domain
+  ],
+  methods: ["GET", "POST"],
+  credentials: true,
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Paystack API configuration
