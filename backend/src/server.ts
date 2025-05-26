@@ -2,11 +2,16 @@ import express, { RequestHandler } from "express";
 import cors from "cors";
 import * as dotenv from "dotenv";
 import axios, { AxiosError } from "axios";
+import { connectDB } from "./config/database";
+import { BatchVerification } from "./models/BatchVerification";
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Connect to MongoDB
+connectDB();
 
 // CORS configuration
 const corsOptions = {
@@ -119,7 +124,11 @@ const verifyBatchHandler: RequestHandler = async (req, res) => {
       })
     );
 
-    res.json({ results });
+    // Save the batch verification results to MongoDB
+    const batchVerification = new BatchVerification({ accounts: results });
+    await batchVerification.save();
+
+    res.json({ results, id: batchVerification._id });
   } catch (error) {
     console.error("Batch verification error:", error);
     res
@@ -128,8 +137,27 @@ const verifyBatchHandler: RequestHandler = async (req, res) => {
   }
 };
 
+// Get batch verification results by ID
+const getBatchVerificationHandler: RequestHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const batchVerification = await BatchVerification.findById(id);
+
+    if (!batchVerification) {
+      res.status(404).json({ error: "Batch verification not found" });
+      return;
+    }
+
+    res.json(batchVerification);
+  } catch (error) {
+    console.error("Error retrieving batch verification:", error);
+    res.status(500).json({ error: "Error retrieving batch verification" });
+  }
+};
+
 app.post("/api/verify-single", verifySingleHandler);
 app.post("/api/verify-batch", verifyBatchHandler);
+app.get("/api/batch-verification/:id", getBatchVerificationHandler);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
