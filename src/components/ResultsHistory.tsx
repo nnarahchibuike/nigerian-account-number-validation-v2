@@ -19,10 +19,19 @@ import DownloadIcon from "@mui/icons-material/Download";
 import ReplayIcon from "@mui/icons-material/Replay";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 
+interface VerificationResult {
+  date: string;
+  accountNumber: string;
+  bankCode: string;
+  accountName: string;
+  reference: string;
+  status: "success" | "failed";
+}
+
 export default function ResultsHistory() {
   // Replace with your actual state and logic
   const loading = true;
-  const results: unknown[] = [];
+  const results: VerificationResult[] = [];
 
   return (
     <Box
@@ -141,7 +150,17 @@ export default function ResultsHistory() {
               ) : (
                 results.map((row, idx) => (
                   <TableRow key={idx}>
-                    {/* Render your row data here */}
+                    <TableCell>{row.date}</TableCell>
+                    <TableCell>{row.accountNumber}</TableCell>
+                    <TableCell>{row.bankCode}</TableCell>
+                    <TableCell>{row.accountName}</TableCell>
+                    <TableCell>{row.reference}</TableCell>
+                    <TableCell>{row.status}</TableCell>
+                    <TableCell>
+                      <Button size="small" variant="text">
+                        View Details
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))
               )}
